@@ -26,10 +26,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        // const usersCollection = client.db('aircncDb').collection('users')
-        // const roomsCollection = client.db('aircncDb').collection('rooms')
-        // const bookingsCollection = client.db('aircncDb').collection('bookings')
 
+        const roomsCollection = client.db('roomDB').collection('rooms')
+        // const bookingsCollection = client.db('aircncDb').collection('bookings')
+        app.get('/allRooms', async (req, res) => {
+
+            const allRooms = await roomsCollection.find({}).toArray()
+            res.send(allRooms)
+
+        })
         // Send a ping to confirm a successful connection
         console.log('mongoDB connected')
         await client.db('admin').command({ ping: 1 })
@@ -44,7 +49,7 @@ async function run() {
 run().catch(console.dir)
 
 app.get('/', (req, res) => {
-    res.send('airbnb Server is running..')
+    res.send('Airbnb Server is running..')
 })
 
 app.listen(port, () => {
