@@ -35,6 +35,34 @@ async function run() {
             res.send(allRooms)
 
         })
+
+        app.get('/allRooms/filters', async (req, res) => {
+
+            const roomType = req.query.roomType;
+            const propertyType = req.query.propertyType.split(',')
+            const minPrice = parseFloat(req.query.minPrice)
+            const maxPrice = parseFloat(req.query.maxPrice)
+            const beds = parseInt(req.query.beds)
+            const bedrooms = parseInt(req.query.bedrooms)
+            const bathroom = parseInt(req.query.bathroom)
+            res.send({
+                roomType: roomType
+            })
+
+
+        })
+
+
+
+
+
+
+
+
+
+
+
+
         // Send a ping to confirm a successful connection
         console.log('mongoDB connected')
         await client.db('admin').command({ ping: 1 })
