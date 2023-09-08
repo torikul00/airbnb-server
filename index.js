@@ -44,10 +44,77 @@ async function run() {
             const maxPrice = parseFloat(req.query.maxPrice)
             const beds = parseInt(req.query.beds)
             const bedrooms = parseInt(req.query.bedrooms)
-            const bathroom = parseInt(req.query.bathroom)
-            res.send({
-                roomType: roomType
-            })
+            const bathrooms = parseInt(req.query.bathrooms)
+
+
+
+
+            // http://localhost:5000/allRooms/filters?beds=2&bedrooms=2&bathrooms=1&propertyType=Apartment&minPrice=233&maxPrice=400
+
+            const rooms = await roomsCollection.find({}).toArray()
+
+            let filteredRooms;
+
+
+            if (roomType === "All type") {
+                const averagePrice = await roomsCollection.aggregate([
+                    {
+                        $group: {
+                            _id: null,
+                            averagePrice: { $avg: '$price' }
+                        }
+                    }
+                ]).toArray()
+                console.log(averagePrice)
+                filteredRooms = rooms?.filter(room => room.price <= averagePrice[0].averagePrice)
+            }
+            else {
+                const averagePrice = await roomsCollection.aggregate([
+                    {
+                        $match: {
+                            $or: [
+                                { category: roomType },
+                                { propertyType: roomType }
+                            ]
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            averagePrice: { $avg: '$price' }
+                        }
+                    }
+                ]).toArray()
+                console.log(averagePrice)
+                filteredRooms = rooms?.filter(room => room.price <= averagePrice[0].averagePrice)
+            }
+            // console.log(filteredRooms)
+
+            filteredRooms = filteredRooms.filter(room => room.price >= minPrice && room.price <= maxPrice)
+
+
+            if (beds) {
+                filteredRooms = filteredRooms?.filter(room => room.beds === beds);
+
+            }
+
+            if (bedrooms) {
+                filteredRooms = filteredRooms?.filter(room => room.bedrooms === bedrooms);
+
+            }
+
+            if (bathrooms) {
+                filteredRooms = filteredRooms?.filter(room => room.bathroom === bathrooms);
+
+            }
+
+            if (!propertyType.includes('')) {
+                filteredRooms = filteredRooms?.filter(room => propertyType.includes(room.propertyType))
+
+            }
+
+            //  console.log(beds,bedrooms,bathrooms)
+            res.send(filteredRooms)
 
 
         })
