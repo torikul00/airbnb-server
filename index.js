@@ -46,11 +46,6 @@ async function run() {
             const bathrooms = parseInt(req.query.bathrooms)
             const bedrooms = parseInt(req.query.bedrooms)
 
-
-
-
-            // http://localhost:5000/allRooms/filters?beds=2&bedrooms=2&bathrooms=1&propertyType=Apartment&minPrice=233&maxPrice=400
-
             const rooms = await roomsCollection.find({}).toArray()
 
             let filteredRooms;
@@ -65,7 +60,7 @@ async function run() {
                         }
                     }
                 ]).toArray()
-                console.log(averagePrice)
+               
                 filteredRooms = rooms?.filter(room => room.price <= averagePrice[0].averagePrice)
             }
             else {
@@ -161,15 +156,6 @@ async function run() {
 
         })
 
-
-
-
-
-
-
-
-
-
         // Send a ping to confirm a successful connection
         console.log('mongoDB connected')
         await client.db('admin').command({ ping: 1 })
@@ -184,7 +170,7 @@ async function run() {
 run().catch(console.dir)
 
 app.get('/', (req, res) => {
-    res.send('Airbnb Server is running..')
+    res.send('Server is running..')
 })
 
 app.listen(port, () => {
