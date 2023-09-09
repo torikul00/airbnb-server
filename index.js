@@ -13,8 +13,7 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 app.use(express.json())
-
-const uri = `mongodb+srv://airbnbtorikul:${process.env.DB_PASS}@airbnb.m1uf4ng.mongodb.net/?retryWrites=true&w=majority`
+const uri = `mongodb+srv://airbnb:DnZucSOqeshJluog@cluster0.hrgeg.mongodb.net/?retryWrites=true&w=majority`
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -46,10 +45,7 @@ async function run() {
             const bedrooms = parseInt(req.query.bedrooms)
 
             const rooms = await roomsCollection.find({}).toArray()
-
             let filteredRooms;
-
-
             if (roomType === "All type") {
                 const averagePrice = await roomsCollection.aggregate([
                     {
@@ -107,7 +103,6 @@ async function run() {
 
             }
             res.send(filteredRooms)
-
 
         })
 
