@@ -38,13 +38,13 @@ async function run() {
 
         app.get('/allRooms/filters', async (req, res) => {
 
-            const roomType = req.query.roomType;
             const propertyType = req.query.propertyType.split(',')
+            const roomType = req.query.roomType;
+            const beds = parseInt(req.query.beds)
             const minPrice = parseFloat(req.query.minPrice)
             const maxPrice = parseFloat(req.query.maxPrice)
-            const beds = parseInt(req.query.beds)
-            const bedrooms = parseInt(req.query.bedrooms)
             const bathrooms = parseInt(req.query.bathrooms)
+            const bedrooms = parseInt(req.query.bedrooms)
 
 
 
@@ -85,7 +85,7 @@ async function run() {
                         }
                     }
                 ]).toArray()
-                console.log(averagePrice)
+
                 filteredRooms = rooms?.filter(room => room.price <= averagePrice[0].averagePrice)
             }
             // console.log(filteredRooms)
@@ -112,14 +112,54 @@ async function run() {
                 filteredRooms = filteredRooms?.filter(room => propertyType.includes(room.propertyType))
 
             }
-
-            //  console.log(beds,bedrooms,bathrooms)
             res.send(filteredRooms)
 
 
         })
 
 
+        app.get('/allRooms/search', async (req, res) => {
+
+            const destination = req.query.destination;
+            const dateRange = req.query.dateRange;
+            const checkIn = dateRange.split(' - ')[0];
+            const checkOut = dateRange.split(' - ')[1];
+            const guests = req.query.guests;
+            const pets = req.query.pets;
+            const infants = req.query.infants;
+
+            let searchedRooms;
+            const query = {};
+            searchedRooms = await roomsCollection.find({}).toArray()
+
+            // Add conditions to the query only if the values are not "0"
+            if (guests !== '0') {
+                query['holdingCapacity.guests'] = guests;
+            }
+            if (pets !== '0') {
+                query['holdingCapacity.pets'] = pets;
+            }
+            if (infants !== '0') {
+                query['holdingCapacity.infants'] = infants;
+            }
+
+
+
+            if (destination) {
+                searchedRooms = await roomsCollection.find({ location: { $regex: destination, $options: "i" } }).toArray();
+            }
+            if (Object.entries(query).length > 0) {
+                searchedRooms = await roomsCollection.find(query).toArray();
+            }
+
+            if (checkIn !== checkOut) {
+                searchedRooms = await roomsCollection.find({ dateRange: dateRange }).toArray();
+            }
+
+            res.send(searchedRooms)
+
+
+        })
 
 
 
