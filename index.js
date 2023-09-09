@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 require('dotenv').config()
 const port = process.env.PORT || 5000
 
@@ -13,7 +14,6 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json())
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const uri = `mongodb+srv://airbnbtorikul:${process.env.DB_PASS}@airbnb.m1uf4ng.mongodb.net/?retryWrites=true&w=majority`
 
 const client = new MongoClient(uri, {
@@ -21,19 +21,18 @@ const client = new MongoClient(uri, {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    },
-})
+    }
+});
+
 
 async function run() {
     try {
-
+        client.connect();
         const roomsCollection = client.db('roomDB').collection('rooms')
-        // const bookingsCollection = client.db('aircncDb').collection('bookings')
+
         app.get('/allRooms', async (req, res) => {
-
-            const allRooms = await roomsCollection.find({}).toArray()
+            const allRooms = await roomsCollection.find().toArray()
             res.send(allRooms)
-
         })
 
         app.get('/allRooms/filters', async (req, res) => {
@@ -60,7 +59,7 @@ async function run() {
                         }
                     }
                 ]).toArray()
-               
+
                 filteredRooms = rooms?.filter(room => room.price <= averagePrice[0].averagePrice)
             }
             else {
